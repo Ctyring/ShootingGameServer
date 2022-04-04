@@ -8,9 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Reference Include="MySql.Data, Version=8.0.28.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
-        <HintPath>E:\environment\mysqlConnecter\net6.0\MySql.Data.dll</HintPath>
-      </Reference>
+      <PackageReference Include="MySql.Data" Version="8.0.12" />
     </ItemGroup>
 
 </Project>
