@@ -18,6 +18,10 @@ public class ServNet
     public int maxConn = 50;
     // 单例模式 --- 方便调用
     public static ServNet instance;
+    // 主定时器 每秒执行一次
+    private System.Timers.Timer timer = new System.Timers.Timer(1000);
+    // 心跳时间
+    public long heartBeatTime = 180;
 
     /// <summary>
     /// 构造函数
@@ -26,7 +30,7 @@ public class ServNet
     {
         instance = this;
     }
-    
+
     /// <summary>
     /// 获取连接池索引
     /// </summary>
@@ -53,7 +57,52 @@ public class ServNet
 
         return -1;
     }
+
+    /// <summary>
+    /// 心跳函数
+    /// </summary>
+    public void HeartBeatTime()
+    {
+        Console.WriteLine("主定时器执行");
+        long timeNow = Sys.GetTimeStamp();
+
+        for (int i = 0; i < conns.Length; i++)
+        {
+            Conn conn = conns[i];
+            if (conn == null)
+            {
+                continue;
+            }
+
+            if (!conn.isUse)
+            {
+                continue;
+            }
+
+            // 检查上次操作时间
+            if (conn.lastTickTime < timeNow - heartBeatTime)
+            {
+                Console.WriteLine("心跳机制引起连接断开：" + conn.GetAdress());
+                lock (conn)
+                {
+                    conn.Close();
+                }
+            }
+        }
+    }
     
+    /// <summary>
+    /// 定时器的回调函数
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    public void HandleMainTimer(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        HeartBeatTime();
+        // 再次调用start以形成循环
+        timer.Start();
+    }
+
     /// <summary>
     /// 开启服务器
     /// </summary>
@@ -61,6 +110,12 @@ public class ServNet
     /// <param name="port">端口号</param>
     public void Start(string host, int port)
     {
+        // 定时器
+        timer.Elapsed += new System.Timers.ElapsedEventHandler(HandleMainTimer);
+        // 设定为false，所以定时器只会执行一次
+        timer.AutoReset = false;
+        timer.Enabled = true;
+        
         // 初始化连接池
         conns = new Conn[maxConn];
         for (int i = 0; i < maxConn; i++)
@@ -208,6 +263,11 @@ public class ServNet
         
         // 如果满足要求则读取和处理消息
         string str = System.Text.Encoding.UTF8.GetString(conn.readBuff, sizeof(Int32), conn.magLength);
+        // 心跳协议：如果收到消息HeatBeat就更新心跳时间
+        if (str == "HeatBeat")
+        {
+            conn.lastTickTime = Sys.GetTimeStamp();
+        }
         Console.WriteLine("收到消息[" + conn.GetAdress() + "]" + str);
         Send(conn, str);
         

@@ -47,7 +47,8 @@ public class Conn
         this.socket = socket;
         isUse = true;
         buffCount = 0;
-        // 心跳处理
+        // 心跳处理 记录客户端连接时间作为第一次心跳
+        lastTickTime = Sys.GetTimeStamp();
     }
 
     /// <summary>
