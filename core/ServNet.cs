@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using ShootingGameServer.Logic;
 
 namespace ShootingGameServer.core;
@@ -25,6 +26,10 @@ public class ServNet
     public long heartBeatTime = 180;
     // 协议
     public ProtocolBase proto;
+    // 消息分发
+    public HandleConnMsg handleConnMsg = new HandleConnMsg();
+    public HandlePlayerMsg handlePlayerMsg = new HandlePlayerMsg();
+    public HandlePlayerEvent handlePlayerEvent = new HandlePlayerEvent();
 
     /// <summary>
     /// 构造函数
@@ -279,18 +284,40 @@ public class ServNet
     /// </summary>
     /// <param name="conn"></param>
     /// <param name="protocolBase"></param>
-    private void HandleConnMsg(Conn conn, ProtocolBase protocolBase)
+    private void HandleConnMsg(Conn conn, ProtocolBase protocol)
     {
-        string name = protocolBase.GetName();
+        string name = protocol.GetName();
+        // 消息处理规定在handleConnMsg和handlePlayerMsg中使用“Msg+协议名”来处理对应的协议
+        string methodName = "Msg" + name;
         Console.WriteLine("[收到协议：]" + name);
-        // 处理心跳
-        if (name == "HeatBeat")
+        // 连接协议分发
+        if (conn.player == null || name == "HeatBeat" || name == "Logout")
         {
-            Console.WriteLine("[更新心跳时间]" + conn.GetAdress());
-            conn.lastTickTime = Sys.GetTimeStamp();
+            MethodInfo mm = handleConnMsg.GetType().GetMethod((methodName));
+            if (mm == null)
+            {
+                Console.WriteLine("[警告]HandleMsg没有处理方法" + methodName);
+                return;
+            }
+
+            Object[] obj = new Object[] {conn, protocol};
+            Console.WriteLine("[处理连接消息]" + conn.GetAdress() + ":" + name);
+            mm.Invoke(handleConnMsg, obj);
         }
-        // 回射
-        Send(conn, protocolBase);
+        // 角色协议分发
+        else
+        {
+            MethodInfo mm = handleConnMsg.GetType().GetMethod((methodName));
+            if (mm == null)
+            {
+                Console.WriteLine("[警告]HandleMsg没有处理方法" + methodName);
+                return;
+            }
+
+            Object[] obj = new Object[] {conn.player, protocol};
+            Console.WriteLine("[处理玩家消息]" + conn.player.id + ":" + name);
+            mm.Invoke(handlePlayerMsg, obj);
+        }
     }
 
     /// <summary>

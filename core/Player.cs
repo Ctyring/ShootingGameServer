@@ -87,7 +87,7 @@ public class Player
     public bool Logout()
     {
         // 事件处理，稍后实现
-        // ServNet.instance.handlePlayerEvent.OnLogout(this);
+        ServNet.instance.handlePlayerEvent.OnLogout(this);
 
         // 先保存数据
         if (!DataMgr.instance.SavePlayer(this))
