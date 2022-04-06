@@ -269,7 +269,7 @@ public class DataMgr
     public bool SavePlayer(Player player)
     {
         string id = player.id;
-        PlayerData playerData = player.data;
+        PlayerData playerData = player.playerData;
         
         // 序列化
         IFormatter formatter = new BinaryFormatter();
