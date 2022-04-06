@@ -94,6 +94,13 @@ public class Conn
         socket.Close();
         isUse = false;
     }
-    
-    // 发送协议，稍后实现
+
+    /// <summary>
+    /// 发送协议
+    /// </summary>
+    /// <param name="protocolBase"></param>
+    public void Send(ProtocolBase protocolBase)
+    {
+        ServNet.instance.Send(this, protocolBase);
+    }
 }

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
+using ShootingGameServer.Logic;
 
 namespace ShootingGameServer.core;
 
@@ -22,6 +23,8 @@ public class ServNet
     private System.Timers.Timer timer = new System.Timers.Timer(1000);
     // 心跳时间
     public long heartBeatTime = 180;
+    // 协议
+    public ProtocolBase proto;
 
     /// <summary>
     /// 构造函数
@@ -237,7 +240,7 @@ public class ServNet
     }
 
     /// <summary>
-    /// 判断缓冲区的数据能否满足一条消息所需的数据量
+    /// 对数据进行提前处理
     /// </summary>
     /// <param name="conn">客户端连接</param>
     private void ProcessData(Conn conn)
@@ -261,15 +264,9 @@ public class ServNet
             return;
         }
         
-        // 如果满足要求则读取和处理消息
-        string str = System.Text.Encoding.UTF8.GetString(conn.readBuff, sizeof(Int32), conn.magLength);
-        // 心跳协议：如果收到消息HeatBeat就更新心跳时间
-        if (str == "HeatBeat")
-        {
-            conn.lastTickTime = Sys.GetTimeStamp();
-        }
-        Console.WriteLine("收到消息[" + conn.GetAdress() + "]" + str);
-        Send(conn, str);
+        // 处理消息
+        ProtocolBase protocol = proto.Decode(conn.readBuff, sizeof(Int32), conn.magLength);
+        HandleConnMsg(conn, protocol);
         
         // 清除已处理的消息
         int count = conn.buffCount - conn.magLength - sizeof(Int32);
@@ -278,14 +275,33 @@ public class ServNet
     }
 
     /// <summary>
+    /// 对协议进行处理
+    /// </summary>
+    /// <param name="conn"></param>
+    /// <param name="protocolBase"></param>
+    private void HandleConnMsg(Conn conn, ProtocolBase protocolBase)
+    {
+        string name = protocolBase.GetName();
+        Console.WriteLine("[收到协议：]" + name);
+        // 处理心跳
+        if (name == "HeatBeat")
+        {
+            Console.WriteLine("[更新心跳时间]" + conn.GetAdress());
+            conn.lastTickTime = Sys.GetTimeStamp();
+        }
+        // 回射
+        Send(conn, protocolBase);
+    }
+
+    /// <summary>
     /// 发送消息
     /// </summary>
     /// <param name="conn">客户端连接</param>
-    /// <param name="str">消息内容</param>
-    public void Send(Conn conn, string str)
+    /// <param name="protocolBase">协议</param>
+    public void Send(Conn conn, ProtocolBase protocolBase)
     {
-        // 将字符串转换成bytes数组
-        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(str);
+        // 从协议中获取bytes数组
+        byte[] bytes = protocolBase.Encode();
         // 获取字符串长度
         byte[] length = BitConverter.GetBytes(bytes.Length);
         // 将长度拼接到字符串前面
@@ -297,6 +313,28 @@ public class ServNet
         catch (Exception e)
         {
             Console.WriteLine("[ServNet]发送消息失败：");
+        }
+    }
+
+    /// <summary>
+    /// 广播
+    /// </summary>
+    /// <param name="protocolBase">协议</param>
+    public void Broadcast(ProtocolBase protocolBase)
+    {
+        for (int i = 0; i < conns.Length; i++)
+        {
+            if (!conns[i].isUse)
+            {
+                continue;
+            }
+
+            if (conns[i].player == null)
+            {
+                continue;
+            }
+            
+            Send(conns[i], protocolBase);
         }
     }
 
