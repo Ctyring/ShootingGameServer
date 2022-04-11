@@ -394,4 +394,32 @@ public class ServNet
             }
         }
     }
+
+    /// <summary>
+    /// 输出服务端信息
+    /// 遍历连接处并打印连接信息
+    /// </summary>
+    public void Print()
+    {
+        Console.WriteLine("===服务器登录信息===");
+        for (int i = 0; i < conns.Length; i++)
+        {
+            if (conns[i] == null)
+            {
+                continue;
+            }
+
+            if (!conns[i].isUse)
+            {
+                continue;
+            }
+
+            string str = "连接[" + conns[i].GetAdress() + "]";
+            if (conns[i].player != null)
+            {
+                str += "玩家 id " + conns[i].player.id;
+            }
+            Console.WriteLine(str);
+        }
+    }
 }
