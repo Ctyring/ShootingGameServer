@@ -23,7 +23,7 @@ public class Conn
     // 分包：如果发送的网络数据包比较大，TCP可能会将它拆分成多个
     // 解决方法：在每个数据包前加上字节长度
     public byte[] lenBytes = new byte[sizeof(UInt32)];
-    public Int32 magLength = 0;
+    public Int32 msgLength = 0;
     // 心跳时间
     public long lastTickTime = long.MinValue;
     // 对应的player

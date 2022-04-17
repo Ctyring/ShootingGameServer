@@ -193,7 +193,7 @@ public class DataMgr
         }
         
         // 查询数据库
-        string cmdStr = string.Format("insert into user set id = '{0}', pw = '{1}';", id, pw);
+        string cmdStr = string.Format("select * from user where id = '{0}' and pw = '{1}';", id, pw);
         MySqlCommand cmd = new MySqlCommand(cmdStr, sqlConnection);
         try
         {

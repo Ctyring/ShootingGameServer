@@ -9,7 +9,7 @@ public class SqlUtil
     private static MySqlConnection sqlConn;
     
     //数据库配置
-    private static string Database = "shooting_game";
+    private static string Database = "game";
     private static string DataSource = "127.0.0.1";
     private static string UserId = "root";
     private static string Password = "root";
@@ -24,7 +24,8 @@ public class SqlUtil
                       + "Data Source=" + DataSource + ";" 
                       + "User Id=" + UserId + ";"
                       + "Password=" + Password + ";"
-                      + "Port=" + Port + ";";
+                      + "Port=" + Port + ";"
+                      + "Allow User Variables=True;";
         sqlConn = new MySqlConnection(Conn);
         try
         {

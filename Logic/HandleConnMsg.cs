@@ -41,14 +41,14 @@ public partial class HandleConnMsg
         //注册
         if (DataMgr.instance.Register(id, pw))
         {
+            // 创建角色
+            DataMgr.instance.CreatePlayer(id);
             protocol.AddInt(0);
         }
         else
         {
             protocol.AddInt(-1);
         }
-        // 创建角色
-        DataMgr.instance.CreatePlayer(id);
         // 把消息发送给客户端
         conn.Send(protocol);
     }
@@ -82,7 +82,7 @@ public partial class HandleConnMsg
         }
         // 是否已经登录
         ProtocolBytes protocolLogout = new ProtocolBytes();
-        protocolLogout.AddString("Logout");
+        protocolLogout.AddString("Login");
         if (!Player.KickOff(id, protocolLogout))
         {
             protocol.AddInt(-1);
@@ -102,6 +102,7 @@ public partial class HandleConnMsg
         
         // 事件触发
         ServNet.instance.handlePlayerEvent.OnLogin(conn.player);
+        
         // 返回
         protocol.AddInt(0);
         conn.Send(protocol);

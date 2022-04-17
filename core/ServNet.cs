@@ -23,7 +23,7 @@ public class ServNet
     // 主定时器 每秒执行一次
     private System.Timers.Timer timer = new System.Timers.Timer(1000);
     // 心跳时间
-    public long heartBeatTime = 180;
+    public long heartBeatTime = 160;
     // 协议
     public ProtocolBase proto;
     // 消息分发
@@ -71,7 +71,7 @@ public class ServNet
     /// </summary>
     public void HeartBeatTime()
     {
-        Console.WriteLine("主定时器执行");
+        // Console.WriteLine("主定时器执行");
         long timeNow = Sys.GetTimeStamp();
 
         for (int i = 0; i < conns.Length; i++)
@@ -213,7 +213,7 @@ public class ServNet
             string str = System.Text.Encoding.UTF8.GetString(conn.readBuff, 0, count);
             Console.WriteLine("收到" + conn.GetAdress() + "数据：" + str);
             str = conn.GetAdress() + ":" + str;
-            byte[] bytes = System.Text.Encoding.Default.GetBytes(str);
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(str);
             
             // 广播
             for (int i = 0; i < conns.Length; i++)
@@ -260,23 +260,28 @@ public class ServNet
         // 参数说明：将readBuff的前四个字节复制到lenBytes中，就是获取一个完整数据的长度
         Array.Copy(conn.readBuff, conn.lenBytes, sizeof(Int32));
         // 将字节数组转换为int数据类型
-        conn.magLength = BitConverter.ToInt32(conn.lenBytes, 0);
+        conn.msgLength = BitConverter.ToInt32(conn.lenBytes, 0);
         
         // 然后再判断缓冲区长度是否满足需求
-        if (conn.buffCount < conn.magLength + sizeof(Int32))
+        if (conn.buffCount < conn.msgLength + sizeof(Int32))
         {
             // 如果不满足就先不处理
             return;
         }
         
         // 处理消息
-        ProtocolBase protocol = proto.Decode(conn.readBuff, sizeof(Int32), conn.magLength);
+        ProtocolBase protocol = proto.Decode(conn.readBuff, sizeof(Int32), conn.msgLength);
         HandleConnMsg(conn, protocol);
         
         // 清除已处理的消息
-        int count = conn.buffCount - conn.magLength - sizeof(Int32);
+        int count = conn.buffCount - conn.msgLength - sizeof(Int32);
         // 把数据向前复制，就覆盖掉了已经处理的数据
-        Array.Copy(conn.readBuff, sizeof(Int32) + conn.magLength, conn.readBuff, 0, count);
+        Array.Copy(conn.readBuff, sizeof(Int32) + conn.msgLength, conn.readBuff, 0, count);
+        conn.buffCount = count;
+        if (conn.buffCount > 0)
+        {
+            ProcessData(conn);
+        }
     }
 
     /// <summary>
