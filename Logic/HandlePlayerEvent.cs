@@ -13,7 +13,7 @@ public class HandlePlayerEvent
     /// <param name="player"></param>
     public void OnLogin(Player player)
     {
-        
+        Scene.instance.AddPlayer(player.id);
     }
 
     /// <summary>
@@ -22,6 +22,6 @@ public class HandlePlayerEvent
     /// <param name="player"></param>
     public void OnLogout(Player player)
     {
-        
+        Scene.instance.DelPlayer(player.id);
     }
 }
