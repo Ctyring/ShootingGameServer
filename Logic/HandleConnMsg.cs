@@ -131,37 +131,4 @@ public partial class HandleConnMsg
             conn.player.Logout();
         }
     }
-
-    /// <summary>
-    /// 获取分数功能
-    /// 协议参数：
-    /// 返回协议：int 分数
-    /// </summary>
-    /// <param name="player"></param>
-    /// <param name="protoBase"></param>
-    public void MsgGetScore(Player player, ProtocolBase protoBase)
-    {
-        ProtocolBytes protocolRet = new ProtocolBytes();
-        protocolRet.AddString("GetScore");
-        protocolRet.AddInt(player.playerData.score);
-        player.Send(protocolRet);
-        Console.WriteLine("MsgGetScore " + player.id + player.playerData.score);
-    }
-
-    /// <summary>
-    /// 增加分数，没有协议参数
-    /// </summary>
-    /// <param name="player"></param>
-    /// <param name="protoBase"></param>
-    public void MsgAddScore(Player player, ProtocolBase protoBase)
-    {
-        // 获取数值
-        int start = 0;
-        ProtocolBytes protocol = (ProtocolBytes) protoBase;
-        string protoName = protocol.GetString(start, ref start);
-        
-        // 处理
-        player.playerData.score += 1;
-        Console.WriteLine("MsgAddScore" + player.id + " " + player.playerData.score.ToString());
-    }
 }

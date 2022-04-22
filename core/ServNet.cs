@@ -23,7 +23,7 @@ public class ServNet
     // 主定时器 每秒执行一次
     private System.Timers.Timer timer = new System.Timers.Timer(1000);
     // 心跳时间
-    public long heartBeatTime = 160;
+    public long heartBeatTime = 180;
     // 协议
     public ProtocolBase proto;
     // 消息分发
@@ -209,29 +209,29 @@ public class ServNet
             conn.buffCount += count;
             ProcessData(conn);
 
-            // 开始数据处理
-            string str = System.Text.Encoding.UTF8.GetString(conn.readBuff, 0, count);
-            Console.WriteLine("收到" + conn.GetAdress() + "数据：" + str);
-            str = conn.GetAdress() + ":" + str;
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(str);
-            
-            // 广播
-            for (int i = 0; i < conns.Length; i++)
-            {
-                if (conns[i] == null)
-                {
-                    continue;
-                }
-
-                if (!conns[i].isUse)
-                {
-                    continue;
-                }
-                
-                // 只将信息发送给所有正在使用的连接
-                Console.WriteLine("将消息转播给 " + conns[i].GetAdress());
-                conns[i].socket.Send(bytes);
-            }
+            // // 开始数据处理
+            // string str = System.Text.Encoding.UTF8.GetString(conn.readBuff, 0, count);
+            // Console.WriteLine("收到" + conn.GetAdress() + "数据：" + str);
+            // str = conn.GetAdress() + ":" + str;
+            // byte[] bytes = System.Text.Encoding.UTF8.GetBytes(str);
+            //
+            // // 广播
+            // for (int i = 0; i < conns.Length; i++)
+            // {
+            //     if (conns[i] == null)
+            //     {
+            //         continue;
+            //     }
+            //
+            //     if (!conns[i].isUse)
+            //     {
+            //         continue;
+            //     }
+            //     
+            //     // 只将信息发送给所有正在使用的连接
+            //     Console.WriteLine("将消息转播给 " + conns[i].GetAdress());
+            //     conns[i].socket.Send(bytes);
+            // }
 
             // 继续监听接收，实现循环
             conn.socket.BeginReceive(conn.readBuff, conn.buffCount, conn.BuffRemain(), SocketFlags.None, ReceiveCb, conn);
@@ -296,7 +296,7 @@ public class ServNet
         string methodName = "Msg" + name;
         Console.WriteLine("[收到协议：]" + name);
         // 连接协议分发
-        if (conn.player == null || name == "HeatBeat" || name == "Logout")
+        if (conn.player == null || name == "HeatBeat" || name == "Logout" || name == "Login" || name == "Register")
         {
             MethodInfo mm = handleConnMsg.GetType().GetMethod((methodName));
             if (mm == null)
@@ -309,18 +309,17 @@ public class ServNet
             Console.WriteLine("[处理连接消息]" + conn.GetAdress() + ":" + name);
             mm.Invoke(handleConnMsg, obj);
         }
-        // 角色协议分发
         else
         {
-            MethodInfo mm = handleConnMsg.GetType().GetMethod((methodName));
+            MethodInfo mm = handlePlayerMsg.GetType().GetMethod((methodName));
             if (mm == null)
             {
-                Console.WriteLine("[警告]HandleMsg没有处理方法" + methodName);
+                Console.WriteLine("[警告]handlePlayerMsg没有处理方法" + methodName);
                 return;
             }
 
             Object[] obj = new Object[] {conn.player, protocol};
-            Console.WriteLine("[处理玩家消息]" + conn.player.id + ":" + name);
+            Console.WriteLine("[处理玩家消息]" + conn.player.id + " : " + name);
             mm.Invoke(handlePlayerMsg, obj);
         }
     }
