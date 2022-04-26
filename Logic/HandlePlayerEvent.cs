@@ -23,5 +23,15 @@ public class HandlePlayerEvent
     public void OnLogout(Player player)
     {
         Scene.instance.DelPlayer(player.id);
+        // 如果玩家在房间内，就要通知下线
+        if (player.playerTempData.status == PlayerTempData.Status.Room)
+        {
+            Room room = player.playerTempData.room;
+            RoomMgr.instance.LeaveRoom(player);
+            if (room != null)
+            {
+                room.Broadcast(room.GetRoomInfo());
+            }
+        }
     }
 }

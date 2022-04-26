@@ -10,6 +10,7 @@ class MainClass
 {
     public static void Main(string[] args)
     {
+        RoomMgr roomMgr = new RoomMgr();
         DataMgr dataMgr = new DataMgr();
         ServNet servNet = new ServNet();
         servNet.proto = new ProtocolBytes();

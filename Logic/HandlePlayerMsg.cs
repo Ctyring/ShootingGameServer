@@ -76,7 +76,20 @@ public partial class HandlePlayerMsg
         // 处理
         player.playerData.score += 1;
         Console.WriteLine("MsgAddScore" + player.id + " " + player.playerData.score.ToString());
+    }
 
-        
+    /// <summary>
+    /// 查询成绩
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="protocol"></param>
+    public void MsgGetAchieve(Player player, ProtocolBase protocolBase)
+    {
+        ProtocolBytes protocol = new ProtocolBytes();
+        protocol.AddString("GetAchieve");
+        protocol.AddInt(player.playerData.win);
+        protocol.AddInt(player.playerData.fail);
+        player.Send(protocol);
+        Console.WriteLine("[MsgGetAchieve] " + player.id + player.playerData.win);
     }
 }

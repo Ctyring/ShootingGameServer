@@ -1,4 +1,6 @@
-﻿namespace ShootingGameServer.Logic;
+﻿using ShootingGameServer.core;
+
+namespace ShootingGameServer.Logic;
 
 /// <summary>
 /// 角色临时数据类
@@ -10,4 +12,16 @@ public class PlayerTempData
     {
         
     }
+
+    public enum Status
+    {
+        None,
+        Room,
+        Fight
+    }
+
+    public Status status;
+    public Room room;
+    public int team = 1;
+    public bool isOwner = false;
 }
