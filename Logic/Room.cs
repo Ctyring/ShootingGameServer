@@ -14,6 +14,7 @@ public class Room
     }
 
     public Status status = Status.Prepare;
+
     // 最大玩家数量
     public int maxPlayers = 6;
     public Dictionary<string, Player> list = new Dictionary<string, Player>();
@@ -63,7 +64,8 @@ public class Room
             {
                 count1++;
             }
-            if(player.playerTempData.team == 2)
+
+            if (player.playerTempData.team == 2)
             {
                 count2++;
             }
@@ -152,6 +154,79 @@ public class Room
             int isOwner = player.playerTempData.isOwner ? 1 : 0;
             protocol.AddInt(isOwner);
         }
+
         return protocol;
+    }
+
+    /// <summary>
+    /// 判断房间是否能开战
+    /// </summary>
+    /// <returns></returns>
+    public bool CanStart()
+    {
+        if (status != Status.Prepare)
+        {
+            return false;
+        }
+
+        int count1 = 0;
+        int count2 = 0;
+        foreach (Player player in list.Values)
+        {
+            if (player.playerTempData.team == 1)
+            {
+                count1++;
+            }
+
+            if (player.playerTempData.team == 2)
+            {
+                count2++;
+            }
+        }
+
+        if (count1 < 1 || count2 < 1)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 初始化战场
+    /// 将房间状态设置为Fight
+    /// 初始化每个角色的生命值
+    /// 计算每个角色的初始位置
+    /// 改变房间内玩家的状态
+    /// </summary>
+    public void StartFight()
+    {
+        ProtocolBytes protocol = new ProtocolBytes();
+        protocol.AddString("Fight");
+        status = Status.Prepare;
+        int teamPos1 = 1;
+        int teamPos2 = 1;
+        lock (list)
+        {
+            protocol.AddInt(list.Count);
+            foreach (Player player in list.Values)
+            {
+                player.playerTempData.hp = 200;
+                protocol.AddString(player.id);
+                protocol.AddInt(player.playerTempData.team);
+                if (player.playerTempData.team == 1)
+                {
+                    protocol.AddInt(teamPos1++);
+                }
+                else
+                {
+                    protocol.AddInt(teamPos2++);
+                }
+
+                player.playerTempData.status = PlayerTempData.Status.Fight;
+            }
+
+            Broadcast(protocol);
+        }
     }
 }

@@ -60,7 +60,6 @@ public class RoomMgr
     /// <returns></returns>
     public ProtocolBytes GetRoomList()
     {
-        Console.WriteLine("[DEBUG] 广播");
         ProtocolBytes protocol = new ProtocolBytes();
         protocol.AddString("GetRoomList");
         int count = list.Count;
