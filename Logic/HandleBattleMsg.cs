@@ -143,7 +143,7 @@ public partial class HandlePlayerMsg
         }
 
         enemy.playerTempData.hp -= damage;
-        Console.WriteLine("[MsgHit]" + enemy + "hp:" + enemy.playerTempData.hp);
+        Console.WriteLine("[MsgHit]" + enemy.id + "hp:" + enemy.playerTempData.hp);
         ProtocolBytes protocolRet = new ProtocolBytes();
         protocolRet.AddString("Hit");
         protocolRet.AddString(player.id);

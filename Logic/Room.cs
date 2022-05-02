@@ -302,4 +302,29 @@ public class Room
             Broadcast(protocol);
         }
     }
+
+    /// <summary>
+    /// 中途退出战斗
+    /// 将自己杀死
+    /// </summary>
+    /// <param name="player"></param>
+    public void ExitFight(Player player)
+    {
+        if (list[player.id] != null)
+        {
+            list[player.id].playerTempData.hp = -1;
+        }
+
+        ProtocolBytes protocol = new ProtocolBytes();
+        protocol.AddString("Hit");
+        protocol.AddString(player.id);
+        protocol.AddString(player.id);
+        protocol.AddFloat(999);
+        Broadcast(protocol);
+        if (IsWin() == 0)
+        {
+            player.playerData.fail++;
+        }
+        UpdateWin();
+    }
 }
