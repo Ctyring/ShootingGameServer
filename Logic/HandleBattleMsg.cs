@@ -75,4 +75,81 @@ public partial class HandlePlayerMsg
         protocolRet.AddFloat(rotZ);
         room.Broadcast(protocolRet);
     }
+
+    /// <summary>
+    /// 角色射击
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="protocolBase"></param>
+    public void MsgShooting(Player player, ProtocolBase protocolBase)
+    {
+        ProtocolBytes protocol = (ProtocolBytes) protocolBase;
+        int start = 0;
+        string name = protocol.GetString(start, ref start);
+        float posX = protocol.GetFloat(start, ref start);
+        float posY = protocol.GetFloat(start, ref start);
+        float posZ = protocol.GetFloat(start, ref start);
+        float rotX = protocol.GetFloat(start, ref start);
+        float rotY = protocol.GetFloat(start, ref start);
+        float rotZ = protocol.GetFloat(start, ref start);
+        if (player.playerTempData.status != PlayerTempData.Status.Fight)
+        {
+            return;
+        }
+        Room room = player.playerTempData.room;
+        ProtocolBytes protocolRet = new ProtocolBytes();
+        protocolRet.AddString("Shooting");
+        protocolRet.AddString(player.id);
+        protocolRet.AddFloat(posX);
+        protocolRet.AddFloat(posY);
+        protocolRet.AddFloat(posZ);
+        protocolRet.AddFloat(rotX);
+        protocolRet.AddFloat(rotY);
+        protocolRet.AddFloat(rotZ);
+        room.Broadcast(protocolRet);
+    }
+
+    /// <summary>
+    /// 伤害处理
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="protocolBase"></param>
+    public void MsgHit(Player player, ProtocolBase protocolBase)
+    {
+        ProtocolBytes protocol = (ProtocolBytes) protocolBase;
+        int start = 0;
+        string name = protocol.GetString(start, ref start);
+        string enemyName = protocol.GetString(start, ref start);
+        float damage = protocol.GetFloat(start, ref start);
+        if (player.playerTempData.status != PlayerTempData.Status.Fight)
+        {
+            return;
+        }
+        Room room = player.playerTempData.room;
+        if (!room.list.ContainsKey(enemyName))
+        {
+            Console.WriteLine("[MsgHit]该玩家不在房间内" + enemyName);
+        }
+
+        Player enemy = room.list[enemyName];
+        if (enemy == null)
+        {
+            return;
+        }
+
+        if (enemy.playerTempData.hp <= 0)
+        {
+            return;
+        }
+
+        enemy.playerTempData.hp -= damage;
+        Console.WriteLine("[MsgHit]" + enemy + "hp:" + enemy.playerTempData.hp);
+        ProtocolBytes protocolRet = new ProtocolBytes();
+        protocolRet.AddString("Hit");
+        protocolRet.AddString(player.id);
+        protocolRet.AddString(enemy.id);
+        protocolRet.AddFloat(damage);
+        room.Broadcast(protocolRet);
+        room.UpdateWin();
+    }
 }

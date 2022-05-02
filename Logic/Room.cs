@@ -103,6 +103,79 @@ public class Room
     }
 
     /// <summary>
+    /// 胜负判断
+    /// </summary>
+    /// <returns>0 未分出胜负 1 阵营1获胜 2 阵营2获胜</returns>
+    private int IsWin()
+    {
+        if (status != Status.Fight)
+        {
+            return 0;
+        }
+
+        int count1 = 0;
+        int count2 = 0;
+        foreach (Player player in list.Values)
+        {
+            PlayerTempData ptd = player.playerTempData;
+            if (ptd.team == 1 && ptd.hp > 0)
+            {
+                count1++;
+            }
+
+            if (ptd.team == 2 && ptd.hp > 0)
+            {
+                count2++;
+            }
+        }
+        if (count1 <= 0)
+        {
+            return 2;
+        }
+
+        if (count2 <= 0)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// 处理战斗结果
+    /// </summary>
+    public void UpdateWin()
+    {
+        int isWin = IsWin();
+        if (isWin == 0)
+        {
+            return;
+        }
+
+        lock (list)
+        {
+            status = Status.Prepare;
+        }
+
+        foreach (Player player in list.Values)
+        {
+            player.playerTempData.status = PlayerTempData.Status.Room;
+            if (player.playerTempData.team == isWin)
+            {
+                player.playerData.win++;
+            }
+            else
+            {
+                player.playerData.fail++;
+            }
+        }
+
+        ProtocolBytes protocol = new ProtocolBytes();
+        protocol.AddString("Result");
+        protocol.AddInt(isWin);
+        Broadcast(protocol);
+    }
+    /// <summary>
     /// 更换房主
     /// </summary>
     public void UpdateOwner()
