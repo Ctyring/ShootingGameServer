@@ -54,6 +54,9 @@ public partial class HandlePlayerMsg
         float rotX = protocol.GetFloat(start, ref start);
         float rotY = protocol.GetFloat(start, ref start);
         float rotZ = protocol.GetFloat(start, ref start);
+        float lookX = protocol.GetFloat(start, ref start);
+        float lookY = protocol.GetFloat(start, ref start);
+        float speed = protocol.GetFloat(start, ref start);
         if (player.playerTempData.status != PlayerTempData.Status.Fight)
         {
             return;
@@ -73,6 +76,9 @@ public partial class HandlePlayerMsg
         protocolRet.AddFloat(rotX);
         protocolRet.AddFloat(rotY);
         protocolRet.AddFloat(rotZ);
+        protocolRet.AddFloat(lookX);
+        protocolRet.AddFloat(lookY);
+        protocolRet.AddFloat(speed);
         room.Broadcast(protocolRet);
     }
 
