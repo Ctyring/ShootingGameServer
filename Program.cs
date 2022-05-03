@@ -14,20 +14,8 @@ class MainClass
         DataMgr dataMgr = new DataMgr();
         ServNet servNet = new ServNet();
         servNet.proto = new ProtocolBytes();
-        servNet.Start("127.0.0.1", 9888);
+        servNet.Start(9888);
         Scene scene = new Scene();
-        while (true)
-        {
-            string str = Console.ReadLine();
-            switch (str)
-            {
-                case "quit":
-                    servNet.Close();
-                    return;
-                case "print":
-                    servNet.Print();
-                    break;
-            }
-        }
+        Thread.Sleep(Timeout.Infinite);
     }
 }

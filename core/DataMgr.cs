@@ -22,9 +22,9 @@ public class DataMgr
 
     //数据库配置
     private static string Database = "game";
-    private static string DataSource = "127.0.0.1";
-    private static string UserId = "root";
-    private static string Password = "root";
+    private static string DataSource = "47.117.163.229";
+    private static string UserId = "game";
+    private static string Password = "wESjJWDisWzfbEt3";
     private static string Port = "3306";
 
     /// <summary>
@@ -45,7 +45,8 @@ public class DataMgr
                       + "Data Source=" + DataSource + ";"
                       + "User Id=" + UserId + ";"
                       + "Password=" + Password + ";"
-                      + "Port=" + Port + ";";
+                      + "Port=" + Port + ";"
+                      + "SslMode = none;";
         sqlConnection = new MySqlConnection(Conn);
         try
         {
@@ -113,14 +114,14 @@ public class DataMgr
             Console.WriteLine("[DataMgr]Register账号或密码使用了非法字符！");
             return false;
         }
-        
+
         // 判断该账号能否注册
         if (!CanRegister(id))
         {
             Console.WriteLine("[DataMgr]Register该账号不能注册");
             return false;
         }
-        
+
         // 写入数据库User表
         string cmdStr = string.Format("insert into user set id = '{0}', pw = '{1}';", id, pw);
         MySqlCommand cmd = new MySqlCommand(cmdStr, sqlConnection);
@@ -143,7 +144,7 @@ public class DataMgr
         {
             return false;
         }
-        
+
         // 序列化
         IFormatter formatter = new BinaryFormatter();
         MemoryStream stream = new MemoryStream();
@@ -191,7 +192,7 @@ public class DataMgr
             Console.WriteLine("[DataMgr]CheckPassword账号或密码使用了非法字符！");
             return false;
         }
-        
+
         // 查询数据库
         string cmdStr = string.Format("select * from user where id = '{0}' and pw = '{1}';", id, pw);
         MySqlCommand cmd = new MySqlCommand(cmdStr, sqlConnection);
@@ -217,6 +218,7 @@ public class DataMgr
         {
             return playerData;
         }
+
         // 查询
         string cmdStr = String.Format("select * from player where id = '{0}';", id);
         MySqlCommand cmd = new MySqlCommand(cmdStr, sqlConnection);
@@ -245,12 +247,13 @@ public class DataMgr
             Console.WriteLine("[DataMgr]GetPlayerData获取player信息失败" + e);
             throw;
         }
+
         // 反序列化
         MemoryStream stream = new MemoryStream(buffer);
         try
         {
             BinaryFormatter formatter = new BinaryFormatter();
-            playerData = (PlayerData)formatter.Deserialize(stream);
+            playerData = (PlayerData) formatter.Deserialize(stream);
             // playerData = JsonSerializer.Deserialize<PlayerData>(stream);
             return playerData;
         }
@@ -270,7 +273,7 @@ public class DataMgr
     {
         string id = player.id;
         PlayerData playerData = player.playerData;
-        
+
         // 序列化
         IFormatter formatter = new BinaryFormatter();
         MemoryStream stream = new MemoryStream();

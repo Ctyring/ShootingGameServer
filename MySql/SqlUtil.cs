@@ -10,9 +10,9 @@ public class SqlUtil
     
     //数据库配置
     private static string Database = "game";
-    private static string DataSource = "127.0.0.1";
-    private static string UserId = "root";
-    private static string Password = "root";
+    private static string DataSource = "47.117.163.229";
+    private static string UserId = "game";
+    private static string Password = "wESjJWDisWzfbEt3";
     private static string Port = "3306";
     
     /// <summary>
@@ -20,12 +20,13 @@ public class SqlUtil
     /// </summary>
     public static void Init()
     {
-        string Conn = "Database=" + Database  + ";"
-                      + "Data Source=" + DataSource + ";" 
+        string Conn = "Database=" + Database + ";"
+                      + "Data Source=" + DataSource + ";"
                       + "User Id=" + UserId + ";"
                       + "Password=" + Password + ";"
                       + "Port=" + Port + ";"
-                      + "Allow User Variables=True;";
+                      + "Allow User Variables=True;"
+                      + "SslMode = none;";
         sqlConn = new MySqlConnection(Conn);
         try
         {

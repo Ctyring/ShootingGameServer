@@ -114,9 +114,8 @@ public class ServNet
     /// <summary>
     /// 开启服务器
     /// </summary>
-    /// <param name="host">ip地址</param>
     /// <param name="port">端口号</param>
-    public void Start(string host, int port)
+    public void Start(int port)
     {
         // 定时器
         timer.Elapsed += new System.Timers.ElapsedEventHandler(HandleMainTimer);
@@ -135,7 +134,7 @@ public class ServNet
         listenfd = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         
         // Bind
-        IPAddress ipAddress = IPAddress.Parse(host);
+        IPAddress ipAddress = IPAddress.Any;
         IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, port);
         listenfd.Bind(ipEndPoint);
         
