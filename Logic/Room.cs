@@ -296,7 +296,6 @@ public class Room
                 {
                     protocol.AddInt(teamPos2++);
                 }
-
                 player.playerTempData.status = PlayerTempData.Status.Fight;
             }
 

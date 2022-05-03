@@ -6,7 +6,7 @@ public partial class HandlePlayerMsg
 {
     public void MsgStartFight(Player player, ProtocolBase protocolBase)
     {
-        ProtocolBytes protocol = (ProtocolBytes) protocolBase;
+        ProtocolBytes protocol = new ProtocolBytes();
         protocol.AddString("StartFight");
         if (player.playerTempData.status != PlayerTempData.Status.Room)
         {
@@ -30,6 +30,7 @@ public partial class HandlePlayerMsg
             Console.WriteLine("[StartFight]房间不能开战！" + player.id);
             protocol.AddInt(-1);
             player.Send(protocol);
+            return;
         }
         
         protocol.AddInt(0);
