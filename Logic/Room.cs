@@ -147,6 +147,7 @@ public class Room
     public void UpdateWin()
     {
         int isWin = IsWin();
+        Console.WriteLine("[UpdateWin]" + isWin.ToString());
         if (isWin == 0)
         {
             return;
@@ -276,7 +277,7 @@ public class Room
     {
         ProtocolBytes protocol = new ProtocolBytes();
         protocol.AddString("Fight");
-        status = Status.Prepare;
+        status = Status.Fight;
         int teamPos1 = 1;
         int teamPos2 = 1;
         lock (list)
